@@ -1,5 +1,6 @@
 package com.example.spaceenemies
 
+
 import android.content.Context
 import android.graphics.*
 import android.os.Build
@@ -8,42 +9,88 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.view.View
 import java.lang.Math.pow
 import java.lang.Math.sqrt
 import java.util.*
 import kotlin.collections.ArrayList
 
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 class GameSurface(context: Context?, attrs: AttributeSet?) :
     SurfaceView(context, attrs), SurfaceHolder.Callback
 {
     companion object {
         private const val TAG = "GameSurface"
+
+        private const val playerWidth = 70f
+        private const val enemyWidth = 70f
+        private const val playerFireWidth = 10f
+        private const val playerFireSpeed = 10f
+        private const val playerSpeed = 6f
+        private val randomizer = Random()
+
+        private val red:Paint = with(Paint(Paint.ANTI_ALIAS_FLAG)){
+            setARGB(255,255,0,0)
+            textSize = 100f
+            textAlign = Paint.Align.CENTER
+            this
+        }
+        private val green:Paint = with(Paint(Paint.ANTI_ALIAS_FLAG))
+        {
+            setARGB(255, 0, 255, 0)
+            textSize = 25f
+            this
+        }
     }
-    private val thread: GameThread
+    private var thread: GameThread
 
 
-    //Coordinates
+    //Coordinates and game state
     private var playerX = 0f
     private var playerY = 0f
 
-    private var playerFires: ArrayList<PointF> = ArrayList()
-    private var enemyFires: ArrayList<PointF> = ArrayList()
+    private var playerFires: LinkedList<PointF> = LinkedList()
+    private var enemyFires: LinkedList<PointF> = LinkedList()
 
     private var enemies: ArrayList<PointF> = ArrayList()
 
     private var enemiesDestinations:ArrayList<PointF> = ArrayList()
 
+    private var counter = 0
+    private var points = 0
+
+    private var gameIsOn = false
+
 
     //graphics
-    private var playerShip: Bitmap
-    private var enemy: Bitmap
-    private var playerFire: Bitmap
-    private var enemyFire: Bitmap
-    private val playerWidth = 70f
-    private val enemyWidth = 70f
-    private val playerFireWidth = 10f
+
+    private var playerShip = Bitmap.createScaledBitmap(
+        BitmapFactory.decodeResource(resources, R.drawable.player),
+        playerWidth.toInt(),
+        playerWidth.toInt(),
+        false
+    )
+
+    private val enemy = Bitmap.createScaledBitmap(
+        BitmapFactory.decodeResource(resources, R.drawable.enemy),
+        enemyWidth.toInt(),
+        enemyWidth.toInt(),
+        false
+    )
+    private val playerFire = Bitmap.createScaledBitmap(
+        BitmapFactory.decodeResource(resources, R.drawable.playerfire),
+        playerFireWidth.toInt(),
+        playerFireWidth.toInt(),
+        false
+    )
+    private val enemyFire = Bitmap.createScaledBitmap(
+        BitmapFactory.decodeResource(resources, R.drawable.enemyfire),
+        playerFireWidth.toInt(),
+        playerFireWidth.toInt(),
+        false
+    )
+
 
 
     //Controls
@@ -52,42 +99,19 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
     private var touched:Boolean = false
 
 
-    //Settings
-    private var playerFireSpeed = 10f
-    private var playerSpeed = 6f
-    private var gameIsOn = false
-    private var points = 0
-
     //Other
-    private var counter = 0
     private var xScale = 1.0
     private var yScale = 1.0
     private var ratio = 1.0
 
-    private val red = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val green = Paint(Paint.ANTI_ALIAS_FLAG)
-
-    private val randomizer = Random()
-
 
     init {
-        holder.addCallback(this)
         thread = GameThread(holder, this)
-        playerShip = BitmapFactory.decodeResource(resources, R.drawable.player)
-        enemy = BitmapFactory.decodeResource(resources, R.drawable.enemy)
-        playerFire = BitmapFactory.decodeResource(resources, R.drawable.playerfire)
-        enemyFire =  BitmapFactory.decodeResource(resources, R.drawable.enemyfire)
-
-        red.setARGB(255,255,0,0)
-        red.textSize = 100f
-        red.textAlign = Paint.Align.CENTER
-        green.setARGB(255, 0, 255, 0)
-        green.textSize = 25f
-
+        holder.addCallback(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun setUp() {
+    private fun adjustCanvas() {
 
         val canvas = holder.lockHardwareCanvas()
         val w = canvas!!.width
@@ -98,16 +122,10 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
         yScale = h/(720.0*ratio)
         holder.setFixedSize(720, (720*ratio).toInt())
         holder.unlockCanvasAndPost(canvas)
-
-        playerShip = Bitmap.createScaledBitmap(playerShip, playerWidth.toInt(), playerWidth.toInt(), false)
-        enemy = Bitmap.createScaledBitmap(enemy, enemyWidth.toInt(), enemyWidth.toInt(), false)
-        playerFire = Bitmap.createScaledBitmap(playerFire, playerFireWidth.toInt(), playerFireWidth.toInt(), false)
-        enemyFire = Bitmap.createScaledBitmap(enemyFire, playerFireWidth.toInt(), playerFireWidth.toInt(), false)
-
-
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+        adjustCanvas()
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder?) {
@@ -116,9 +134,11 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun surfaceCreated(holder: SurfaceHolder?) {
+    override fun surfaceCreated(holder: SurfaceHolder) {
+        if(!thread.isAlive)
+            thread = GameThread(holder, this)
         thread.setRunning(true)
-        setUp()
+        adjustCanvas()
         startGame()
         thread.start()
     }
@@ -157,8 +177,7 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
         touchedX = event.x.toInt()
         touchedY = event.y.toInt()
 
-        val action = event.action
-        when(action){
+        when(event.action){
             MotionEvent.ACTION_DOWN -> touched = true
             MotionEvent.ACTION_MOVE -> touched = true
             MotionEvent.ACTION_UP -> touched = false
@@ -171,17 +190,16 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
     }
 
 
-    fun startGame(){
+    private fun startGame(){
         gameIsOn = true
         points = 0
         enemies = ArrayList()
         enemiesDestinations = ArrayList()
-        playerFires = ArrayList()
-        enemyFires = ArrayList()
-        playerY = 1270 - playerWidth
+        playerFires = LinkedList()
+        enemyFires = LinkedList()
+        playerY = (720*ratio - 2*playerWidth).toFloat()
         playerX = 720/2 - playerWidth/2
     }
-
 
     fun update(){
 
@@ -203,7 +221,7 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
 
     private fun spawnEntities() {
         if(counter==0){
-            if (randomizer.nextFloat()>0.15 && enemies.size<2000){
+            if (randomizer.nextFloat()>0.15 && enemies.size<30){
                 val p = PointF(randomizer.nextInt((720-enemyWidth).toInt()).toFloat(), -enemyWidth)
                 enemies.add(p)
                 enemiesDestinations.add(
@@ -214,16 +232,11 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
                 )
 
             }
-
             enemies.forEach{
                 if (randomizer.nextFloat()>0.90){
                     enemyFires.add(PointF(it.x+enemyWidth/2, it.y+enemyWidth))
                 }
             }
-
-
-
-
             playerFires.add(PointF(playerX+(playerWidth/2)-playerFireWidth/2, playerY-20))
         }
         counter = (counter+1)%15
@@ -231,10 +244,10 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
 
     private fun movePlayer() {
         if(touched){
-            if(touchedX>360*xScale && (playerX)<720-playerWidth){
+            if(touchedX>playerX+10 && (playerX)<720-playerWidth){
                 playerX+=playerSpeed
             }
-            else if(touchedX<360*xScale && playerX>0){
+            else if(touchedX<playerX-10 && playerX>0){
                 playerX-=playerSpeed
             }
         }
@@ -315,7 +328,9 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
 
         enemyFires.removeIf{
             val p1 = PointF(it.x+playerFireWidth/2, it.y+playerFireWidth/2)
+
             val p2 = PointF(playerX+playerWidth/2, playerY+playerWidth/2)
+
             val d = sqrt(pow((1.0*p1.x-p2.x),2.0) + pow(1.0*p1.y-p2.y, 2.0))
 
             if(d<playerWidth/2+playerFireWidth/2) {
@@ -326,3 +341,6 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
     }
 
 }
+//TODO refactor this after persistance will be done
+//TODO add comments
+//TODO add tests

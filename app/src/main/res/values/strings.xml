@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Space Enemies</string>
+    <string name="app_shared_preferences">SharedPreferences</string>
 </resources>

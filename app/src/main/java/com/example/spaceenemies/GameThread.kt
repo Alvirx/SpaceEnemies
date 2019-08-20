@@ -66,3 +66,6 @@ class GameThread(private val holder: SurfaceHolder,
         }
     }
 }
+
+//TODO add comments
+//TODO add tests
