@@ -1,4 +1,4 @@
-package com.example.spaceenemies.model
+package com.example.spaceenemies.Model
 
 import android.arch.persistence.room.*
 import java.util.*
@@ -21,16 +21,16 @@ internal interface EntitiesDao {
     fun insertAllProjectiles(vararg dbProjectile: DbProjectile)
 
     /**
-     * Deletes from database all enemies given as parameters.
+     * Deletes from database all enemies.
      */
-    @Delete
-    fun deleteAllEnemies(vararg dbEnemy: DbEnemy)
+    @Query("DELETE FROM enemies")
+    fun deleteAllEnemies()
 
     /**
-     * Deletes from database all projectiles given as parameters.
+     * Deletes from database all projectiles
      */
-    @Delete
-    fun deleteAllProjectiles(dbProjectile: DbProjectile)
+    @Query("DELETE FROM projectiles")
+    fun deleteAllProjectiles()
 
     /**
      * Gets all enemies form database.
@@ -48,15 +48,5 @@ internal interface EntitiesDao {
     @Query("SELECT * FROM projectiles")
     fun getAllProjectiles(): LinkedList<DbProjectile>
 
-    /**
-     * Updates all enemies in database given as parameters.
-     */
-    @Update
-    fun updateAllEnemies(vararg dbEnemy: DbEnemy)
 
-    /**
-     * Updates all projectiles in database given as parameters.
-     */
-    @Update
-    fun updateAllProjectiles(vararg dbProjectile: DbProjectile)
 }

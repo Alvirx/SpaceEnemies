@@ -6,7 +6,7 @@
  * @author Bartosz Gorski
  * @date 2019-08-08
  */
-package com.example.spaceenemies.model
+package com.example.spaceenemies.Model
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase

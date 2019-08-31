@@ -1,8 +1,8 @@
-package com.example.spaceenemies
+package com.example.spaceenemies.View
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
+import com.example.spaceenemies.R
 
 class MainActivity : AppCompatActivity() {
 

@@ -1,5 +1,7 @@
-package com.example.spaceenemies.model
+package com.example.spaceenemies.Model
 
+import com.example.spaceenemies.Controller.Enemy
+import com.example.spaceenemies.Controller.Projectile
 import java.util.*
 
 /**
@@ -18,14 +20,14 @@ interface DatabaseAdapterInterface {
     fun insertAllProjectiles(vararg projectile: Projectile)
 
     /**
-     * Deletes from database all enemies given as parameters.
+     * Deletes from database all enemies.
      */
-    fun deleteAllEnemies(vararg enemy: Enemy)
+    fun deleteAllEnemies()
 
     /**
-     * Deletes from database all projectiles given as parameters.
+     * Deletes from database all projectiles.
      */
-    fun deleteAllProjectiles(vararg projectile: Projectile)
+    fun deleteAllProjectiles()
 
     /**
      * Gets all enemies form database.
@@ -41,13 +43,4 @@ interface DatabaseAdapterInterface {
      */
     fun getAllProjectiles(): LinkedList<Projectile>
 
-    /**
-     * Updates all enemies in database given as parameters.
-     */
-    fun updateAllEnemies(vararg enemy: Enemy)
-
-    /**
-     * Updates all projectiles in database given as parameters.
-     */
-    fun updateAllProjectiles(vararg projectile: Projectile)
 }

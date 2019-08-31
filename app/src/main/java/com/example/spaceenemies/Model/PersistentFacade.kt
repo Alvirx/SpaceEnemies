@@ -6,11 +6,12 @@
  * @author Bartosz Gorski
  * @date 2019-08-10
  */
-package com.example.spaceenemies.model
+package com.example.spaceenemies.Model
 
-import android.arch.persistence.room.Room
 import android.content.Context
 import android.preference.PreferenceManager
+import com.example.spaceenemies.Controller.Enemy
+import com.example.spaceenemies.Controller.Projectile
 import java.util.*
 
 /**
@@ -53,24 +54,16 @@ class PersistentFacade private constructor(context:Context) : PersistenceFacadeI
         databaseAdapter.insertAllEnemies(*enemy)
     }
 
-    override fun deleteAllEnemies(vararg enemy: Enemy) {
-        databaseAdapter.deleteAllEnemies(*enemy)
+    override fun deleteAllEnemies() {
+        databaseAdapter.deleteAllEnemies()
     }
 
-    override fun deleteAllProjectiles(vararg projectile: Projectile) {
-        databaseAdapter.deleteAllProjectiles(*projectile)
+    override fun deleteAllProjectiles() {
+        databaseAdapter.deleteAllProjectiles()
     }
 
     override fun saveAllProjectiles(vararg projectile: Projectile) {
         databaseAdapter.insertAllProjectiles(*projectile)
-    }
-
-    override fun updateAllEnemies(vararg enemy: Enemy) {
-        databaseAdapter.updateAllEnemies(*enemy)
-    }
-
-    override fun updateAllProjectiles(vararg projectile: Projectile) {
-        databaseAdapter.updateAllProjectiles(*projectile)
     }
 
     override fun savePlayer(x: Float, y: Float) {

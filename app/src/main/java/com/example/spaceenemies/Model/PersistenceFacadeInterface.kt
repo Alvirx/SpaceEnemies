@@ -1,5 +1,7 @@
-package com.example.spaceenemies.model
+package com.example.spaceenemies.Model
 
+import com.example.spaceenemies.Controller.Enemy
+import com.example.spaceenemies.Controller.Projectile
 import java.util.*
 
 /**
@@ -28,29 +30,18 @@ interface PersistenceFacadeInterface {
      */
     fun saveAllProjectiles(vararg projectile: Projectile)
 
-    /**
-     * Updates enemies given as params.
-     * @param enemy - enemies to be updated
-     */
-    fun updateAllEnemies(vararg enemy: Enemy)
-
-    /**
-     * Updates projectiles given as params.
-     * @param projectile - projectiles to be updated
-     */
-    fun updateAllProjectiles(vararg projectile:Projectile)
 
     /**
      * Deletes enemies given as params.
      * @param enemy - enemies to be deleted
      */
-    fun deleteAllEnemies(vararg enemy:Enemy)
+    fun deleteAllEnemies()
 
     /**
      * Deletes projectiles given as params.
      * @param projectile - projectiles to be deleted
      */
-    fun deleteAllProjectiles(vararg projectile: Projectile)
+    fun deleteAllProjectiles()
 
     /**
      * Saves player position

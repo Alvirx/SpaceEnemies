@@ -6,18 +6,20 @@
  * @author Bartosz Gorski
  * @date 2019-08-14
  */
-package com.example.spaceenemies.model
+package com.example.spaceenemies.Model
 
 import android.arch.persistence.room.Room
 import android.content.Context
+import com.example.spaceenemies.Controller.*
 import java.util.*
 
 /**
  * Concrete Adapter which adapts EntitiesDao methods to work with game objects. Converts objects that are intended to be saved to db objects
  * and objects that are intended to be read to game objects. Implements DatabaseAdapterInterface.
  */
-class DatabaseAdapter(context: Context): DatabaseAdapterInterface {
+class DatabaseAdapter(private val context: Context): DatabaseAdapterInterface {
 
+    private val consts = SpaceEnemiesConsts.getInstance(context)
     private val entitiesDao = buildDatabase(context).getEntitiesDao()
 
     override fun insertAllEnemies(vararg enemy: Enemy) {
@@ -34,18 +36,12 @@ class DatabaseAdapter(context: Context): DatabaseAdapterInterface {
         }
     }
 
-    override fun deleteAllEnemies(vararg enemy: Enemy) {
-        for(e in enemy){
-            val dbEnemy = convertEnemyToDb(e)
-            entitiesDao.deleteAllEnemies(dbEnemy)
-        }
+    override fun deleteAllEnemies() {
+            entitiesDao.deleteAllEnemies()
     }
 
-    override fun deleteAllProjectiles(vararg projectile: Projectile) {
-        for(p in projectile){
-            val dbProjectile = convertProjectileToDb(p)
-            entitiesDao.deleteAllProjectiles(dbProjectile)
-        }
+    override fun deleteAllProjectiles() {
+        entitiesDao.deleteAllProjectiles()
     }
 
     override fun getAllEnemies(): LinkedList<Enemy> {
@@ -64,39 +60,29 @@ class DatabaseAdapter(context: Context): DatabaseAdapterInterface {
         return list
     }
 
-    override fun updateAllEnemies(vararg enemy: Enemy) {
-        for(e in enemy){
-            val dbEnemy = convertEnemyToDb(e)
-            entitiesDao.updateAllEnemies(dbEnemy)
-        }
-    }
 
-    override fun updateAllProjectiles(vararg projectile: Projectile) {
-        for(p in projectile){
-            val dbProjectile = convertProjectileToDb(p)
-            entitiesDao.updateAllProjectiles(dbProjectile)
-        }
-    }
-
-    private fun convertEnemyFromDb(dbEnemy:DbEnemy) : Enemy{
+    private fun convertEnemyFromDb(dbEnemy:DbEnemy) : Enemy {
         return BasicEnemy(
-            dbEnemy.id,
             dbEnemy.x,
             dbEnemy.y,
             dbEnemy.xDestination,
-            dbEnemy.yDestination)
+            dbEnemy.yDestination,
+            consts.enemy,
+            consts.enemyWidth/2,
+            consts.enemySpeed
+        )
     }
 
-    private fun convertProjectileFromDb(dbProjectile: DbProjectile) : Projectile{
+    private fun convertProjectileFromDb(dbProjectile: DbProjectile) : Projectile {
         return if(dbProjectile.type=="player")
-            PlayerProjectile(dbProjectile.id,dbProjectile.x,dbProjectile.y)
+            PlayerProjectile( dbProjectile.x, dbProjectile.y, consts.playerFire, consts.projectileWidth/2, consts.projectileSpeed)
         else
-            EnemyProjectile(dbProjectile.id,dbProjectile.x,dbProjectile.y)
+            EnemyProjectile(dbProjectile.x, dbProjectile.y, consts.enemyFire, consts.projectileWidth/2, consts.projectileSpeed)
     }
 
-    private fun convertEnemyToDb(enemy:Enemy) : DbEnemy{
+    private fun convertEnemyToDb(enemy: Enemy) : DbEnemy{
         return DbEnemy(
-            enemy.id,
+            1,
             enemy.x,
             enemy.y,
             enemy.xDestination,
@@ -111,7 +97,7 @@ class DatabaseAdapter(context: Context): DatabaseAdapterInterface {
         else
             "player"
 
-        return DbProjectile(projectile.id, projectile.x, projectile.y, type)
+        return DbProjectile(1, projectile.x, projectile.y, type)
 
     }
 
