@@ -15,8 +15,13 @@ open class Entity(var x: Float,
                   var y: Float,
                   val radius:Float) {
     fun collides(other:Entity):Boolean{
+        val myX = x+radius
+        val myY = y+radius
+        val otherX = other.x+other.radius
+        val otherY = other.y+other.radius
+
         val distance = sqrt(
-            (this.x - other.x).pow(2) + (this.y-other.y).pow(2)
+            (myX - otherX).pow(2) + (myY-otherY).pow(2)
         )
         return distance<this.radius+other.radius
     }

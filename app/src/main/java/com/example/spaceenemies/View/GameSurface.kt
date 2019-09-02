@@ -82,7 +82,7 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
         if(!game.isAlive)
             game = GameThread(holder, this)
         adjustCanvas()
-        game.setRunning(true)
+        game.initializeGame()
         game.start()
     }
 
@@ -95,7 +95,7 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
             canvas.drawBitmap(it.bitmap, it.x, it.y, green)
         }
 
-        game.enemies.forEach{
+        game.getEnemies().forEach{
             canvas.drawBitmap(it.bitmap, it.x, it.y, green)
         }
 

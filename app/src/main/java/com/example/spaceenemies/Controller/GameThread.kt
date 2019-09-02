@@ -3,6 +3,7 @@ package com.example.spaceenemies.Controller
 import android.graphics.Canvas
 import android.os.Build
 import android.support.annotation.RequiresApi
+import android.util.Log
 import android.view.SurfaceHolder
 import com.example.spaceenemies.Model.SpaceEnemiesConsts
 import com.example.spaceenemies.View.GameSurface
@@ -14,6 +15,10 @@ import java.util.*
 class GameThread(private val holder: SurfaceHolder,
                  private val gameSurface: GameSurface
 ): Thread() {
+
+    companion object{
+        private const val TAG = "GameThread"
+    }
 
     private var running: Boolean = false
     private val targetFPS = 60
@@ -76,7 +81,7 @@ class GameThread(private val holder: SurfaceHolder,
     fun getProjectiles() = projectiles.toList()
 
 
-    var enemies: LinkedList<Enemy> = LinkedList()
+    private var enemies: LinkedList<Enemy> = LinkedList()
     fun getEnemies() = enemies.toList()
 
     var points = 0
@@ -98,16 +103,19 @@ class GameThread(private val holder: SurfaceHolder,
         if(!gameIsOn && touched)
             startNewGame()
 
+
         if(gameIsOn){
+
             spawnEntities()
-
+            Log.d(TAG, "Poczatek update")
             calcCollisions()
-
-            movePlayer()
+            Log.d(TAG, "Koniec update")
 
             moveEntities()
 
         }
+
+
     }
 
     private fun spawnEntities() {
@@ -157,9 +165,8 @@ class GameThread(private val holder: SurfaceHolder,
     private fun moveEntities(){
         movePlayer()
         enemies.forEach{
-            it.move()
+            it.move(random)
         }
-
         projectiles.forEach{
             it.move()
         }
@@ -171,18 +178,51 @@ class GameThread(private val holder: SurfaceHolder,
                 player.moveRight()
             }
             else if(touchedX<player.x-10){
-                player.moveRight()
+                player.moveLeft()
             }
         }
     }
 
     private fun calcCollisions(){
+        var i = 0
+        while(i < projectiles.size){
+            val p = projectiles[i]
+            if(p is PlayerProjectile){
+                if(p.y<-10){
+                    projectiles.removeAt(i)
+                    i--
+                }
+                else{
+                    for(j in 0 until enemies.size){
+                        val e = enemies[j]
+                        if(p.collides(e)){
+                            projectiles.removeAt(i)
+                            enemies.removeAt(j)
+                            i--
+                            break
+                        }
+                    }
+                }
+            }
+            else{
+                if(p.collides(player)){
+                    projectiles.removeAt(i)
+                    i--
+                    gameIsOn = false
+                } else if(p.y>1.8*720) {
+                    projectiles.removeAt(i)
+                    i--
+                }
 
+            }
+            i++
+        }
     }
 
 
     private fun startNewGame(){
         gameIsOn = true
+        running = true
         points = 0
         enemies = LinkedList()
         projectiles = LinkedList()
@@ -192,6 +232,10 @@ class GameThread(private val holder: SurfaceHolder,
 
     private fun resumeOldGame(){
 
+    }
+
+    fun initializeGame() {
+        startNewGame()
     }
 }
 

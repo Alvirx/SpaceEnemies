@@ -20,7 +20,7 @@ class SpaceEnemiesConsts private constructor(context:Context){
     val projectileWidth = 10f
     val projectileSpeed = 10f
     val playerSpeed = 6f
-    val enemySpeed = 5f
+    val enemySpeed = 0.5f
 
     val enemy = Bitmap.createScaledBitmap(
         BitmapFactory.decodeResource(context.resources, R.drawable.enemy),

@@ -30,7 +30,7 @@ abstract class Projectile(
  */
 class PlayerProjectile(x:Float, y:Float, bitmap: Bitmap, radius: Float, speed:Float) : Projectile(x,y, bitmap, radius, speed) {
     override fun move() {
-        x-=speed
+        y-=speed
     }
 }
 
@@ -39,6 +39,6 @@ class PlayerProjectile(x:Float, y:Float, bitmap: Bitmap, radius: Float, speed:Fl
  */
 class EnemyProjectile(x:Float, y:Float, bitmap: Bitmap, radius: Float, speed:Float) : Projectile(x,y, bitmap, radius, speed) {
     override fun move() {
-        x+=speed
+        y+=speed
     }
 }

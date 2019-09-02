@@ -24,7 +24,7 @@ abstract class Enemy(
     radius: Float,
     val speed: Float
 ) : Entity(x,y,radius) {
-    abstract fun move()
+    abstract fun move(random:Random)
 }
 
 /**
@@ -34,22 +34,22 @@ class BasicEnemy(x: Float, y: Float, xDestination: Float, yDestination: Float, b
     /**
      * Moves enemy towards destination point.
      */
-    override fun move() {
-        val random = Random()
+    override fun move(random:Random) {
         val eps = 10f
         var moved = true
 
         when {
-            x+eps>xDestination -> x-=speed
-            x-eps<xDestination -> x+=speed
+            x+eps<xDestination -> x+=speed
+            x-eps>xDestination -> x-=speed
             else -> moved = false
         }
 
-        if(y+eps>yDestination) y-=speed
-        else if(y-eps<yDestination) y-=speed
+        if(y+eps<yDestination) y+=speed
+        else if(y-eps>yDestination) y-=speed
         else if(!moved) {
-            xDestination = random.nextFloat()
-            yDestination = random.nextFloat()
+            xDestination = random.nextInt(720).toFloat()
+            yDestination = random.nextInt(720).toFloat()
         }
+
     }
 }
