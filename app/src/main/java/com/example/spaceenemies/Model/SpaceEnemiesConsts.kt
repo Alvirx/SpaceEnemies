@@ -14,6 +14,9 @@ import android.graphics.BitmapFactory
 import com.example.spaceenemies.R
 import java.util.*
 
+/**
+ * Singleton class for different in game constant values.
+ */
 class SpaceEnemiesConsts private constructor(context:Context){
     val playerWidth = 70f
     val enemyWidth = 70f
@@ -22,6 +25,9 @@ class SpaceEnemiesConsts private constructor(context:Context){
     val playerSpeed = 6f
     val enemySpeed = 0.5f
 
+    /**
+     * Bitmap for basic enemies
+     */
     val enemy = Bitmap.createScaledBitmap(
         BitmapFactory.decodeResource(context.resources, R.drawable.enemy),
         enemyWidth.toInt(),
@@ -29,6 +35,9 @@ class SpaceEnemiesConsts private constructor(context:Context){
         false
     )
 
+    /**
+     * Bitmap for player projectiles
+     */
     val playerFire = Bitmap.createScaledBitmap(
         BitmapFactory.decodeResource(context.resources, R.drawable.playerfire),
         projectileWidth.toInt(),
@@ -37,6 +46,9 @@ class SpaceEnemiesConsts private constructor(context:Context){
     )
 
 
+    /**
+     * Bitmap for enemy projectiles
+     */
     val enemyFire = Bitmap.createScaledBitmap(
         BitmapFactory.decodeResource(context.resources, R.drawable.enemyfire),
         projectileWidth.toInt(),
@@ -44,6 +56,9 @@ class SpaceEnemiesConsts private constructor(context:Context){
         false
     )
 
+    /**
+     * Bitmap for player ship
+     */
     val playerShip = Bitmap.createScaledBitmap(
         BitmapFactory.decodeResource(context.resources, R.drawable.player),
         playerWidth.toInt(),

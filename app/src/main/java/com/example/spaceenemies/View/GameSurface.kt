@@ -52,8 +52,9 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
     private var ratio = 1.0
 
 
-
-
+    /**
+     * Adjusts canvas for different screen sizes
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun adjustCanvas() {
 
@@ -68,15 +69,24 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
         holder.unlockCanvasAndPost(canvas)
     }
 
+
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
         adjustCanvas()
     }
 
+    /**
+     * Suspends the game and finishes the game thread
+     */
     override fun surfaceDestroyed(holder: SurfaceHolder?) {
+        game.saveGameState()
         game.setRunning(false)
         game.join()
     }
 
+
+    /**
+     * Initializes GameThread and canvas
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     override fun surfaceCreated(holder: SurfaceHolder) {
         if(!game.isAlive)
@@ -86,6 +96,9 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
         game.start()
     }
 
+    /**
+     * Draws entities on canvas
+     */
     override fun draw(canvas: Canvas?) {
         super.draw(canvas)
 
@@ -110,6 +123,9 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
 
     }
 
+    /**
+     * Sends information about touch events to game.
+     */
     override fun onTouchEvent(event: MotionEvent): Boolean {
         game.touchedX = event.x.toInt()
         game.touchedY = event.y.toInt()
@@ -127,5 +143,3 @@ class GameSurface(context: Context?, attrs: AttributeSet?) :
     }
 
 }
-//TODO add comments
-//TODO add tests

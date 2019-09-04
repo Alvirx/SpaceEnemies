@@ -14,13 +14,15 @@ import android.arch.persistence.room.RoomDatabase
 /**
  * This class is responsible in connecting with database and provides the instance of itself via Singleton pattern
  */
-@Database(entities = [DbEnemy::class], version = 1)
+@Database(version = 1, entities = [DbEnemy::class, DbProjectile::class])
 internal abstract class SpaceEnemiesDatabase : RoomDatabase() {
 
     /**
      * Provides interface for interactions with entities table in database.
      * @return entityDao interface
      */
-    abstract fun getEntitiesDao(): EntitiesDao
+    abstract fun getEntitiesDao(): DbEnemiesDao
+
+    abstract fun getProjectilesDao():DbProjectileDao
 
 }
